@@ -9,6 +9,7 @@ extends CameraControllerBase
 func _ready() -> void:
 	super()
 	position = target.position
+	draw_camera_logic = true
 	
 
 func _process(delta: float) -> void:
