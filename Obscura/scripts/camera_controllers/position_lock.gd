@@ -10,8 +10,14 @@ func _ready() -> void:
 
 
 func _process(delta: float) -> void:
+	if !current:
+		return
+	
 	if draw_camera_logic:
 		draw_logic()
+		
+	global_position.x = target.global_position.x
+	global_position.z = target.global_position.z
 	
 	super(delta)
 
@@ -48,7 +54,7 @@ func draw_logic() -> void:
 	
 	add_child(mesh_instance)
 	mesh_instance.global_transform = Transform3D.IDENTITY
-	mesh_instance.global_position = Vector3(target.global_position.x, target.global_position.y, target.global_position.z)
+	mesh_instance.global_position = Vector3(global_position.x, target.global_position.y, global_position.z)
 	
 	#mesh is freed after one update of _process
 	await get_tree().process_frame
