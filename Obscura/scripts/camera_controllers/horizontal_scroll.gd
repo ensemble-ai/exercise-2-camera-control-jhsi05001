@@ -3,7 +3,7 @@ extends CameraControllerBase
 
 @export var top_left:Vector2 = Vector2(-10, 5)
 @export var bottom_right:Vector2 = Vector2(10, -5)
-@export var autoscroll_speed:Vector3 = Vector3(0.5, 0, 0)
+@export var autoscroll_speed:Vector3 = Vector3(0.5, 0, 0.5)
 
 var box_height = abs(top_left.y - bottom_right.y) 
 var box_width = abs(top_left.x - bottom_right.x)
@@ -21,10 +21,13 @@ func _process(delta: float) -> void:
 	
 	if draw_camera_logic:
 		draw_logic()
-		
 	
-	# autoscroll the camera horizontally (left -> right)
+	# autoscroll the camera diagonally (left -> right & up -> down)
 	global_position.x += autoscroll_speed.x
+	global_position.z += autoscroll_speed.z
+	
+	target.global_position.x += autoscroll_speed.x
+	target.global_position.z += autoscroll_speed.z
 	
 	var tpos = target.global_position
 	var cpos = global_position
@@ -33,21 +36,21 @@ func _process(delta: float) -> void:
 	# left --> must push the guy
 	var diff_between_left_edges = (tpos.x - target.WIDTH / 2.0) - (cpos.x - box_width / 2.0)
 	if diff_between_left_edges < 0:
-		target.global_position.x += 0.5 #global_position.x + top_left.x #- target.WIDTH
+		target.global_position.x -= diff_between_left_edges
 	# right
 	var diff_between_right_edges = (tpos.x + target.WIDTH / 2.0) - (cpos.x + box_width / 2.0)
 	if diff_between_right_edges > 0:
-		target.global_position.x -= 0.5
+		target.global_position.x -= diff_between_right_edges
 	 # top
 	var diff_between_top_edges = (tpos.z - target.HEIGHT / 2.0) - (cpos.z - box_height / 2.0)
 	print("top ", diff_between_top_edges)
 	if diff_between_top_edges < 0:
-		target.global_position.z += 1
+		target.global_position.z -= diff_between_top_edges
 	# bottom
 	var diff_between_bottom_edges = (tpos.z + target.HEIGHT / 2.0) - (cpos.z + box_height / 2.0)
 	print("bottom ", diff_between_bottom_edges)
 	if diff_between_bottom_edges > 0:
-		target.global_position.z -= 1
+		target.global_position.z -= diff_between_bottom_edges
 	
 	super(delta)
 
