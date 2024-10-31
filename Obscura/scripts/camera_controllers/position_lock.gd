@@ -1,6 +1,6 @@
+# locks position of the camera onto target
 class_name PositionLock
 extends CameraControllerBase
-# TODO: centered on vessel, draw 5 by 5 when draw_camera_logic = true
 
 
 func _ready() -> void:
