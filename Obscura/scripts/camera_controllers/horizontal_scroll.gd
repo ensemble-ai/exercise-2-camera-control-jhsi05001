@@ -23,11 +23,8 @@ func _process(delta: float) -> void:
 		draw_logic()
 		
 	
+	# autoscroll the camera horizontally (left -> right)
 	global_position.x += autoscroll_speed.x
-	global_position.z += autoscroll_speed.z
-	
-	#target.global_position.x += autoscroll_speed.x
-	#target.global_position.z += autoscroll_speed.z
 	
 	var tpos = target.global_position
 	var cpos = global_position
