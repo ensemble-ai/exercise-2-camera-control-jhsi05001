@@ -2,10 +2,10 @@
 class_name TargetFocus
 extends CameraControllerBase
 
-@export var lead_speed:float = 1.2
-@export var catchup_delay_duration:float
+@export var lead_speed:float = 1.01
+@export var catchup_delay_duration:float = 0.5
 @export var catchup_speed:float = 0.7
-@export var leash_distance:float = 8
+@export var leash_distance:float = 5
 
 func _ready() -> void:
 	super()
@@ -23,19 +23,36 @@ func _process(delta: float) -> void:
 	var distance_x = target.global_position.x - global_position.x
 	var distance_z = target.global_position.z - global_position.z
 	var distance = sqrt( (distance_x * distance_x) + (distance_z * distance_z) )
+	
+	var direction_x = target.velocity.x / target.speed
+	var direction_z = target.velocity.z / target.speed
+	
+	var angle = Vector2(global_position.x, global_position.z).angle_to_point(
+		Vector2(target.global_position.x, target.global_position.z) )
+	
+	print("angle ", cos(angle))
+	
+	print("distance ", distance)
+	
+	print(target.position)
 
-	if distance <= leash_distance: 
+	if distance > leash_distance:
+		global_position.x = target.global_position.x 
+		global_position.z = target.global_position.z 
+	if distance <= leash_distance:
 		if target.velocity.x != 0 or target.velocity.z != 0:
-			pass
 			# target is moving
 			# follow @ follow speed
-			global_position = position.lerp(target.global_position, target.speed * lead_speed * delta)
+			global_position.x += delta * target.velocity.x * lead_speed
+			global_position.z += delta * target.velocity.z * lead_speed
 		if target.velocity.x == 0 and target.velocity.z == 0:
+			print("target stopped")
+			await(catchup_delay_duration)
+			print("done")
 			# target is stopped
 			# follow @ catchup speed
-			global_position = global_position.lerp(target.global_position, target.speed * catchup_speed * delta)
-			#if distance <= 5:
-				#global_position = target.global_position
+			global_position = position.lerp(target.global_position, target.speed * catchup_speed * delta)
+	
 	super(delta)
 
 func draw_logic() -> void:

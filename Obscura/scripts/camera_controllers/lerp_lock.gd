@@ -23,22 +23,18 @@ func _process(delta: float) -> void:
 	var distance_z = target.global_position.z - global_position.z
 	var distance = sqrt( (distance_x * distance_x) + (distance_z * distance_z) )
 	
-	print(distance)
-
 	if distance > leash_distance:
-		#global_position = position.lerp(target.global_position, target.speed * delta)
 		global_position = position.lerp(target.global_position, target.speed * follow_speed * delta)
 	if distance <= leash_distance: 
 		if target.velocity.x != 0 or target.velocity.z != 0:
 			# target is moving
 			# follow @ follow speed
-			print(target.speed * follow_speed )
-			print("target ", target.speed)
 			global_position = position.lerp(target.global_position, target.speed * follow_speed * delta)
 		if target.velocity.x == 0 and target.velocity.z == 0:
 			# target is stopped
 			# follow @ catchup speed
 			global_position = global_position.lerp(target.global_position, target.speed * catchup_speed * delta)
+	
 	super(delta)
 
 func draw_logic() -> void:
