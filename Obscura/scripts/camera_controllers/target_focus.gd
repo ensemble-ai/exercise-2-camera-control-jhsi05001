@@ -29,15 +29,9 @@ func _process(delta: float) -> void:
 	
 	var angle = Vector2(global_position.x, global_position.z).angle_to_point(
 		Vector2(target.global_position.x, target.global_position.z) )
-	
-	print("angle ", cos(angle))
-	
-	print("distance ", distance)
-	
-	print(target.position)
 
 	if distance > leash_distance:
-		global_position.x = target.global_position.x 
+		global_position.x = target.global_position.x
 		global_position.z = target.global_position.z 
 	if distance <= leash_distance:
 		if target.velocity.x != 0 or target.velocity.z != 0:
@@ -46,9 +40,7 @@ func _process(delta: float) -> void:
 			global_position.x += delta * target.velocity.x * lead_speed
 			global_position.z += delta * target.velocity.z * lead_speed
 		if target.velocity.x == 0 and target.velocity.z == 0:
-			print("target stopped")
 			await(catchup_delay_duration)
-			print("done")
 			# target is stopped
 			# follow @ catchup speed
 			global_position = position.lerp(target.global_position, target.speed * catchup_speed * delta)
