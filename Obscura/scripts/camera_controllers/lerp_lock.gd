@@ -1,9 +1,10 @@
+# position lock with lerp smoothing
 class_name LerpLock
 extends CameraControllerBase
 
-@export var follow_speed:float = 0.9
-@export var catchup_speed:float = 0.95
-@export var leash_distance:float = 5
+@export var follow_speed:float = 0.3
+@export var catchup_speed:float = 0.7
+@export var leash_distance:float = 8
 
 func _ready() -> void:
 	super()
@@ -21,41 +22,18 @@ func _process(delta: float) -> void:
 	var distance_x = target.global_position.x - global_position.x
 	var distance_z = target.global_position.z - global_position.z
 	var distance = sqrt( (distance_x * distance_x) + (distance_z * distance_z) )
-	#print("distance ", distance)
-	
-	if distance > leash_distance: 
-		# follow @ target speed
-		global_position.x += delta * target.velocity.x
-		global_position.z += delta * target.velocity.z
+
 	if distance <= leash_distance: 
 		if target.velocity.x != 0 or target.velocity.z != 0:
-			print("target moving")
 			# target is moving
 			# follow @ follow speed
-			global_position.x += delta * target.velocity.x * follow_speed
-			global_position.z += delta * target.velocity.z * follow_speed
+			global_position = position.lerp(target.global_position, target.speed * follow_speed * delta)
 		if target.velocity.x == 0 and target.velocity.z == 0:
-			print("target stopped")
 			# target is stopped
 			# follow @ catchup speed
-			print("distance x, z: ", distance_x, " ", distance_z)
-			if distance_x > 1 and distance_z > 1: # (+,+)
-				global_position.x += delta * target.speed * catchup_speed
-				global_position.z += delta * target.speed * catchup_speed
-			elif distance_x > 1 and distance_z < -1: # (+,-)
-				global_position.x += delta * target.speed * catchup_speed
-				global_position.z += delta * -target.speed * catchup_speed
-			elif distance_x < -1 and distance_z < -1: # (-,-)
-				global_position.x += delta * -target.speed * catchup_speed
-				global_position.z += delta * -target.speed * catchup_speed
-			elif distance_x < -1 and distance_z > 1: # (-,+)
-				global_position.x += delta * -target.speed * catchup_speed
-				global_position.z += delta * target.speed * catchup_speed
-			else:
-				#print("snappedsnapped")
-				global_position.x = target.position.x
-				global_position.z = target.global_position.z
-	
+			global_position = global_position.lerp(target.global_position, target.speed * catchup_speed * delta)
+			#if distance <= 5:
+				#global_position = target.global_position
 	super(delta)
 
 func draw_logic() -> void:
