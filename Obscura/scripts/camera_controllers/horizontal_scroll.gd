@@ -17,6 +17,7 @@ func _ready() -> void:
 
 func _process(delta: float) -> void:
 	if !current:
+		position = target.position
 		return
 	
 	if draw_camera_logic:
@@ -43,12 +44,10 @@ func _process(delta: float) -> void:
 		target.global_position.x -= diff_between_right_edges
 	 # top
 	var diff_between_top_edges = (tpos.z - target.HEIGHT / 2.0) - (cpos.z - box_height / 2.0)
-	print("top ", diff_between_top_edges)
 	if diff_between_top_edges < 0:
 		target.global_position.z -= diff_between_top_edges
 	# bottom
 	var diff_between_bottom_edges = (tpos.z + target.HEIGHT / 2.0) - (cpos.z + box_height / 2.0)
-	print("bottom ", diff_between_bottom_edges)
 	if diff_between_bottom_edges > 0:
 		target.global_position.z -= diff_between_bottom_edges
 	

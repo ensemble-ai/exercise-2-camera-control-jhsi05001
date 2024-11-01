@@ -1,8 +1,8 @@
 class_name LerpLock
 extends CameraControllerBase
 
-@export var follow_speed:float = 40
-@export var catchup_speed:float = 45
+@export var follow_speed:float = 0.9
+@export var catchup_speed:float = 0.95
 @export var leash_distance:float = 5
 
 func _ready() -> void:
@@ -10,18 +10,51 @@ func _ready() -> void:
 	position = target.position
 	draw_camera_logic = true
 
-
 func _process(delta: float) -> void:
 	if !current:
+		global_position = target.global_position
 		return
 	
 	if draw_camera_logic:
 		draw_logic()
-		
-	# TODO camera doesn't immediately snap to target
-	# TODO camera follows at a speed slower than target
-	global_position.x = target.global_position.x
-	global_position.z = target.global_position.z
+	
+	var distance_x = target.global_position.x - global_position.x
+	var distance_z = target.global_position.z - global_position.z
+	var distance = sqrt( (distance_x * distance_x) + (distance_z * distance_z) )
+	#print("distance ", distance)
+	
+	if distance > leash_distance: 
+		# follow @ target speed
+		global_position.x += delta * target.velocity.x
+		global_position.z += delta * target.velocity.z
+	if distance <= leash_distance: 
+		if target.velocity.x != 0 or target.velocity.z != 0:
+			print("target moving")
+			# target is moving
+			# follow @ follow speed
+			global_position.x += delta * target.velocity.x * follow_speed
+			global_position.z += delta * target.velocity.z * follow_speed
+		if target.velocity.x == 0 and target.velocity.z == 0:
+			print("target stopped")
+			# target is stopped
+			# follow @ catchup speed
+			print("distance x, z: ", distance_x, " ", distance_z)
+			if distance_x > 1 and distance_z > 1: # (+,+)
+				global_position.x += delta * target.speed * catchup_speed
+				global_position.z += delta * target.speed * catchup_speed
+			elif distance_x > 1 and distance_z < -1: # (+,-)
+				global_position.x += delta * target.speed * catchup_speed
+				global_position.z += delta * -target.speed * catchup_speed
+			elif distance_x < -1 and distance_z < -1: # (-,-)
+				global_position.x += delta * -target.speed * catchup_speed
+				global_position.z += delta * -target.speed * catchup_speed
+			elif distance_x < -1 and distance_z > 1: # (-,+)
+				global_position.x += delta * -target.speed * catchup_speed
+				global_position.z += delta * target.speed * catchup_speed
+			else:
+				#print("snappedsnapped")
+				global_position.x = target.position.x
+				global_position.z = target.global_position.z
 	
 	super(delta)
 
@@ -61,4 +94,4 @@ func draw_logic() -> void:
 	
 	#mesh is freed after one update of _process
 	await get_tree().process_frame
-	mesh_instance.queue_free()	
+	mesh_instance.queue_free()
