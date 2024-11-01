@@ -1,10 +1,11 @@
-# position lock with lerp smoothing
-class_name LerpLock
+# lerp smoothing with target focus
+class_name TargetFocus
 extends CameraControllerBase
 
-@export var follow_speed:float = 0.1
+@export var lead_speed:float = 1.2
+@export var catchup_delay_duration:float
 @export var catchup_speed:float = 0.7
-@export var leash_distance:float = 10
+@export var leash_distance:float = 8
 
 func _ready() -> void:
 	super()
@@ -22,23 +23,19 @@ func _process(delta: float) -> void:
 	var distance_x = target.global_position.x - global_position.x
 	var distance_z = target.global_position.z - global_position.z
 	var distance = sqrt( (distance_x * distance_x) + (distance_z * distance_z) )
-	
-	print(distance)
 
-	if distance > leash_distance:
-		#global_position = position.lerp(target.global_position, target.speed * delta)
-		global_position = position.lerp(target.global_position, target.speed * follow_speed * delta)
 	if distance <= leash_distance: 
 		if target.velocity.x != 0 or target.velocity.z != 0:
+			pass
 			# target is moving
 			# follow @ follow speed
-			print(target.speed * follow_speed )
-			print("target ", target.speed)
-			global_position = position.lerp(target.global_position, target.speed * follow_speed * delta)
+			global_position = position.lerp(target.global_position, target.speed * lead_speed * delta)
 		if target.velocity.x == 0 and target.velocity.z == 0:
 			# target is stopped
 			# follow @ catchup speed
 			global_position = global_position.lerp(target.global_position, target.speed * catchup_speed * delta)
+			#if distance <= 5:
+				#global_position = target.global_position
 	super(delta)
 
 func draw_logic() -> void:
